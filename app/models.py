@@ -26,7 +26,7 @@ class IOUMessage(BaseModel):
         try:
             _ = float(amount_str)
         except ValueError as e:
-            raise parse_exceptions.AmountException from e
+            raise parse_exceptions.AmountException('Must be a number') from e
         
         return amount_str
 
@@ -37,7 +37,6 @@ class IOUQuery(BaseModel):
     user1: str
     user2: str
 
-    # TODO: need to validate that members are in the group and raise appropriate exceptions
 
 class IOUResponse(BaseModel):
     conversation_id: int
