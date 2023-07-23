@@ -2,6 +2,12 @@
 
 Telegram bot frontend for IOU app
 
+## How to run
+
+```bash
+python -m app.main
+```
+
 ## TODO
 
 MVP:
