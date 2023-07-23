@@ -59,6 +59,10 @@ async def iou(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error('Invalid amount: %s, originating message: %s, parsed amount: %s', e, update.message.text, amount)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid amount: " + str(e))
         return
+    except Exception as e:
+        logger.error('Invalid message: %s, originating message: %s', e, update.message.text)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid input; try again")
+        return
 
     post_url = base_url + "/entries"
     response = requests.post(post_url, json=parsed_iou.model_dump())
@@ -95,9 +99,14 @@ async def get_iou_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user1=user1,
             user2=user2
         )
+    # TODO update this to handle member error bubbled up from backend
     except parse_exceptions.ChatMemberException as e:
         logger.error('Invalid chat member: %s, originating message: %s, parsed users: %s', e, update.message.text, user1 + " " + user2)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid chat member: " + str(e))
+        return
+    except Exception as e:
+        logger.error('Invalid message: %s, originating message: %s', e, update.message.text)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Invalid input; try again")
         return
 
     # TODO clean this up by passing as params: https://stackoverflow.com/a/49520497/12950881
