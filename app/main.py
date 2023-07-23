@@ -68,8 +68,10 @@ async def iou(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.debug('Successfully posted %s', parsed_iou.model_dump())
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"@{update.message.from_user.username} sent {receiver} ${amount} for {description}")
     else:
-        logger.error('Error contacting backend: %s, message: %s, IOUMessage: %s', response.text, update.message.text, parsed_iou.model_dump())
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="An error occurred contacting the backend: " + response.text)
+        r = response.json()
+        msg = f'Backend error: {response.text}\nmessage: {update.message.text}\nIOUMessage: {parsed_iou.model_dump()}'
+        logger.error(msg)
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=r['detail'][0]['msg'].capitalize())
 
 async def get_iou_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get the IOU status between two users from the backend and send the results to the querying conversation.
