@@ -37,6 +37,11 @@ class IOUQuery(BaseModel):
     user1: str
     user2: str
 
+    @validator('user1', 'user2')
+    def remove_at_symbol(cls, username):
+        """Remove the @ symbol"""
+        return username.replace('@', '')
+
 
 class IOUResponse(BaseModel):
     conversation_id: int
