@@ -10,7 +10,7 @@ from . import models
 from . import parse_exceptions
 
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
-base_url = "http://localhost:8000"
+base_url = "http://app:8000"
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

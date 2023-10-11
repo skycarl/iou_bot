@@ -1,3 +1,4 @@
-python-telegram-bot
-requests
-pytest
+python-telegram-bot==20.6
+requests==2.31.0
+pydantic==2.4.2
+pytest==7.4.2
