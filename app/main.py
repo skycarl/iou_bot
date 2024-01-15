@@ -10,7 +10,9 @@ from . import models
 from . import parse_exceptions
 
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
-base_url = "http://app:8000"
+X_TOKEN = os.environ["X_TOKEN"]
+HEADERS = {"X-Token": X_TOKEN}
+base_url = "http://app:8000/api"
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -65,17 +67,19 @@ async def iou(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     post_url = base_url + "/entries"
-    response = requests.post(post_url, json=parsed_iou.model_dump())
+    response = requests.post(
+        post_url,
+        headers=HEADERS,
+        json=parsed_iou.model_dump())
 
-    # Check that the response is 200
-    if response.status_code == 200:
+    # Check that the response is 201
+    if response.status_code == 201:
         logger.debug('Successfully posted %s', parsed_iou.model_dump())
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"@{update.message.from_user.username} sent {receiver} ${amount} for {description}")
-    else:
-        r = response.json()
+    else: # TODO clean this up before deployment
         msg = f'Backend error: {response.text}\nmessage: {update.message.text}\nIOUMessage: {parsed_iou.model_dump()}'
         logger.error(msg)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=r['detail'][0]['msg'].capitalize())
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 async def get_iou_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get the IOU status between two users from the backend and send the results to the querying conversation.

@@ -20,16 +20,13 @@ class IOUMessage(BaseModel):
     
     @validator('amount')
     def validate_amount(cls, amount):
-        """Validate that the amount is a number"""
+        """Validate that the amount is a number and turn it into a float"""
         amount_str = amount.replace('$', '')
 
         try:
-            _ = float(amount_str)
+            return float(amount_str)
         except ValueError as e:
-            raise parse_exceptions.AmountException('Must be a number') from e
-        
-        return amount_str
-
+            raise parse_exceptions.AmountException('Must be castable to float after removing $') from e
 
 class IOUQuery(BaseModel):
     """Pydantic model for IOU queries."""
