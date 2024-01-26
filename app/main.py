@@ -116,7 +116,10 @@ async def get_iou_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # TODO clean this up by passing as params: https://stackoverflow.com/a/49520497/12950881
     url = base_url + f"/iou_status/?conversation_id={parsed_query.conversation_id}&user1={parsed_query.user1}&user2={parsed_query.user2}"
     try:
-        response = requests.get(url)
+        response = requests.get(
+            url,
+            headers=HEADERS,
+            )
     except requests.exceptions.RequestException as e:
         logger.error('Error contacting backend: %s, message: %s, IOUQuery: %s', e, update.message.text, parsed_query.model_dump())
         # TODO update this message once testing is done
