@@ -1,16 +1,18 @@
 FROM python:3.11-slim-bookworm
 
-# Upgrade system packages
-RUN apt-get update && apt-get -y upgrade
+RUN apt-get update \
+    && apt-get -y install curl \
+    && apt-get -y clean \
+    && rm -rf /var/lib/apt/lists/* 
 
-# Switch to non-root user
-RUN useradd --create-home appuser
-USER appuser
+ENV POETRY_HOME=/tmp/poetry
+RUN curl -sSL https://install.python-poetry.org/ | python3 -
+ENV PATH=$POETRY_HOME/bin:$PATH
+ENV PYTHONFAULTHANDLER=1
+ENV PYTHONUNBUFFERED=1
 
-# Install dependencies
-WORKDIR /usr/app
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+WORKDIR /app
+COPY . /app
 
-COPY . .
-CMD ["python", "-m", "app.main"]
+RUN poetry config virtualenvs.create false \
+  && poetry install --only main
