@@ -8,6 +8,15 @@ Telegram bot frontend for IOU app
 python -m app.main
 ```
 
+
+### Development
+
+Pre-commit hooks:
+
+```bash
+$ poetry run pre-commit run --all-files
+```
+
 ## TODO
 
 MVP:
@@ -15,7 +24,7 @@ MVP:
 - [ ] Add tests
 - [ ] Add CI/CD
 - [ ] Add logging, especially for error cases
-- [ ] Add lookup of members in chat 
+- [ ] Add lookup of members in chat
 
 More features:
 
