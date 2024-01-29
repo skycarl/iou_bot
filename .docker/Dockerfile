@@ -3,7 +3,7 @@ FROM python:3.11-slim-bookworm
 RUN apt-get update \
     && apt-get -y install curl \
     && apt-get -y clean \
-    && rm -rf /var/lib/apt/lists/* 
+    && rm -rf /var/lib/apt/lists/*
 
 ENV POETRY_HOME=/tmp/poetry
 RUN curl -sSL https://install.python-poetry.org/ | python3 -
