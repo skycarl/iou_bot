@@ -1,7 +1,8 @@
 """Module for Pydantic models."""
-
 from typing import Optional
-from pydantic import BaseModel, validator
+
+from pydantic import BaseModel
+from pydantic import validator
 
 from app import parse_exceptions
 
@@ -17,19 +18,16 @@ class IOUMessage(BaseModel):
     def remove_at_symbol(cls, username):
         """Remove the @ symbol"""
         return username.replace('@', '')
-    
+
     @validator('amount')
     def validate_amount(cls, amount):
-        """Validate that the amount is a number"""
+        """Validate that the amount is a number and turn it into a float"""
         amount_str = amount.replace('$', '')
 
         try:
-            _ = float(amount_str)
+            return float(amount_str)
         except ValueError as e:
-            raise parse_exceptions.AmountException('Must be a number') from e
-        
-        return amount_str
-
+            raise parse_exceptions.AmountException('Must be castable to float after removing $') from e
 
 class IOUQuery(BaseModel):
     """Pydantic model for IOU queries."""
@@ -51,5 +49,5 @@ class IOUResponse(BaseModel):
 
     @validator('amount')
     def round_amount(cls, amount):
-        """Round amount to 2 decimal places"""        
+        """Round amount to 2 decimal places"""
         return round(amount, 2)
