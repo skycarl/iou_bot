@@ -21,8 +21,8 @@ $ poetry run pre-commit run --all-files
 
 MVP:
 
-- [ ] Add tests
-- [ ] Add CI/CD
+- [ ] Add more tests
+- [x] Add CI/CD
 - [ ] Add logging, especially for error cases
 - [ ] Add lookup of members in chat
 
