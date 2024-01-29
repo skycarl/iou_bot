@@ -15,7 +15,7 @@ def test_iou_message_model():
     assert message.conversation_id == 1
     assert message.sender == 'user1'
     assert message.recipient == 'user2'
-    assert message.amount == '10.00'
+    assert message.amount == 10.
     assert message.description == 'For lunch'
 
     # Test validator for sender and recipient
@@ -46,5 +46,5 @@ def test_iou_query_model():
         user2='@user2'
     )
     assert query.conversation_id == 1
-    assert query.user1 == '@user1'
-    assert query.user2 == '@user2'
+    assert query.user1 == 'user1'
+    assert query.user2 == 'user2'
