@@ -14,7 +14,7 @@ from . import parse_exceptions
 TELEGRAM_BOT_TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
 X_TOKEN = os.environ['X_TOKEN']
 HEADERS = {'X-Token': X_TOKEN}
-base_url = 'http://app:8000/api'
+base_url = os.environ.get('APP_URL')
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
