@@ -17,8 +17,7 @@ HEADERS = {'X-Token': X_TOKEN}
 base_url = os.environ.get('APP_URL')
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)
@@ -26,11 +25,18 @@ logger = logging.getLogger(__name__)
 # Set logging level to debug
 logger.setLevel(logging.DEBUG)
 
+
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text='Hello to yourself!')
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, text='Hello to yourself!'
+    )
+
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text='Enter IOUs in the format of: /iou <receiver> <amount> <description>\n\ne.g., /iou Louie 20.05 if you owe Louie $20.05 for some catnip')
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=('Enter IOUs in the format of: /iou <receiver> <amount> <description>\n\n'
+            'e.g., /iou Louie 20.05 if you owe Louie $20.05 for some catnip'))
 
 
 async def iou(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -57,31 +63,43 @@ async def iou(update: Update, context: ContextTypes.DEFAULT_TYPE):
             sender=update.message.from_user.username,
             recipient=receiver,
             amount=amount,
-            description=description
-            )
+            description=description,
+        )
     except parse_exceptions.AmountException as e:
-        logger.error('Invalid amount: %s, originating message: %s, parsed amount: %s', e, update.message.text, amount)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Invalid amount: ' + str(e))
+        logger.error(
+            'Invalid amount: %s, originating message: %s, parsed amount: %s',
+            e,
+            update.message.text,
+            amount,
+        )
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text='Invalid amount: ' + str(e)
+        )
         return
     except Exception as e:
-        logger.error('Invalid message: %s, originating message: %s', e, update.message.text)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Invalid input; try again')
+        logger.error(
+            'Invalid message: %s, originating message: %s', e, update.message.text
+        )
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text='Invalid input; try again'
+        )
         return
 
     post_url = base_url + '/entries'
-    response = requests.post(
-        post_url,
-        headers=HEADERS,
-        json=parsed_iou.model_dump())
+    response = requests.post(post_url, headers=HEADERS, json=parsed_iou.model_dump())
 
     # Check that the response is 201
     if response.status_code == 201:
         logger.debug('Successfully posted %s', parsed_iou.model_dump())
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f'@{update.message.from_user.username} sent {receiver} ${amount} for {description}')
-    else: # TODO clean this up before deployment
-        msg = f'Backend error: {response.text}\nmessage: {update.message.text}\nIOUMessage: {parsed_iou.model_dump()}'
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"@{update.message.from_user.username} sent {receiver} ${amount} for {description}",
+        )
+    else:  # TODO clean this up before deployment
+        msg = f"Backend error: {response.text}\nmessage: {update.message.text}\nIOUMessage: {parsed_iou.model_dump()}"
         logger.error(msg)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+
 
 async def get_iou_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get the IOU status between two users from the backend and send the results to the querying conversation.
@@ -101,50 +119,80 @@ async def get_iou_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         parsed_query = models.IOUQuery(
-            conversation_id=update.effective_chat.id,
-            user1=user1,
-            user2=user2
+            conversation_id=update.effective_chat.id, user1=user1, user2=user2
         )
     # TODO update this to handle member error bubbled up from backend
     except parse_exceptions.ChatMemberException as e:
-        logger.error('Invalid chat member: %s, originating message: %s, parsed users: %s', e, update.message.text, user1 + ' ' + user2)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Invalid chat member: ' + str(e))
+        logger.error(
+            'Invalid chat member: %s, originating message: %s, parsed users: %s',
+            e,
+            update.message.text,
+            user1 + ' ' + user2,
+        )
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text='Invalid chat member: ' + str(e)
+        )
         return
     except Exception as e:
-        logger.error('Invalid message: %s, originating message: %s', e, update.message.text)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Invalid input; try again')
+        logger.error(
+            'Invalid message: %s, originating message: %s', e, update.message.text
+        )
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text='Invalid input; try again'
+        )
         return
 
     # TODO clean this up by passing as params: https://stackoverflow.com/a/49520497/12950881
-    url = base_url + f'/iou_status/?conversation_id={parsed_query.conversation_id}&user1={parsed_query.user1}&user2={parsed_query.user2}'
+    url = (
+        base_url
+        + '/iou_status/?conversation_id='
+        + str(parsed_query.conversation_id)
+        + '&user1='
+        + str(parsed_query.user1)
+        + '&user2='
+        + str(parsed_query.user2)
+    )
     try:
         response = requests.get(
             url,
             headers=HEADERS,
-            )
+        )
     except requests.exceptions.RequestException as e:
-        logger.error('Error contacting backend: %s, message: %s, IOUQuery: %s', e, update.message.text, parsed_query.model_dump())
+        logger.error(
+            'Error contacting backend: %s, message: %s, IOUQuery: %s',
+            e,
+            update.message.text,
+            parsed_query.model_dump(),
+        )
         # TODO update this message once testing is done
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='An error occurred contacting the backend: ' + str(e))
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text='An error occurred contacting the backend: ' + str(e),
+        )
         return
 
     # Response validation
     if response.status_code == 200:
-
         parsed_response = models.IOUResponse(
             conversation_id=update.effective_chat.id,
             user1=response.json()['user1'],
             user2=response.json()['user2'],
-            amount=response.json()['amount']
+            amount=response.json()['amount'],
         )
 
         await context.bot.send_message(
             chat_id=parsed_response.conversation_id,
-            text=f'@{parsed_response.user1} owes @{parsed_response.user2} ${parsed_response.amount}'
-            )
+            text=f"@{parsed_response.user1} owes @{parsed_response.user2} ${parsed_response.amount}",
+        )
     else:
-        err_msg = f'Invalid response from backend: {response.text}\nmessage: {update.message.text}\nIOUQuery: {parsed_query.model_dump()}'
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=err_msg) # TODO update this message once testing is done
+        err_msg = (
+            f"Invalid response from backend: {response.text}\n"
+            f"message: {update.message.text}\n"
+            f"IOUQuery: {parsed_query.model_dump()}"
+        )
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=err_msg
+        )  # TODO update this message once testing is done
         logger.error(err_msg)
         return
 
