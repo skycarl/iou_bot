@@ -2,7 +2,7 @@
 from typing import Optional
 
 from pydantic import BaseModel
-from pydantic import validator
+from pydantic import field_validator
 
 from app import parse_exceptions
 
@@ -14,12 +14,12 @@ class IOUMessage(BaseModel):
     amount: str
     description: Optional[str]
 
-    @validator('sender', 'recipient')
+    @field_validator('sender', 'recipient')
     def remove_at_symbol(cls, username):
         """Remove the @ symbol"""
         return username.replace('@', '')
 
-    @validator('amount')
+    @field_validator('amount')
     def validate_amount(cls, amount):
         """Validate that the amount is a number and turn it into a float"""
         amount_str = amount.replace('$', '')
@@ -35,7 +35,7 @@ class IOUQuery(BaseModel):
     user1: str
     user2: str
 
-    @validator('user1', 'user2')
+    @field_validator('user1', 'user2')
     def remove_at_symbol(cls, username):
         """Remove the @ symbol"""
         return username.replace('@', '')
@@ -47,7 +47,7 @@ class IOUResponse(BaseModel):
     user2: str
     amount: float
 
-    @validator('amount')
+    @field_validator('amount')
     def round_amount(cls, amount):
         """Round amount to 2 decimal places"""
         return round(amount, 2)
