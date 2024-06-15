@@ -93,8 +93,8 @@ async def iou(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.debug('Successfully posted %s', parsed_iou.model_dump())
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"@{update.message.from_user.username} sent {receiver} ${amount} for {description}",
-        )
+            text = (f"@{update.message.from_user.username} sent {parsed_iou.recipient} "
+                    f"${parsed_iou.amount:.2f} for {parsed_iou.description}"))
     else:  # TODO clean this up before deployment
         msg = f"Backend error: {response.text}\nmessage: {update.message.text}\nIOUMessage: {parsed_iou.model_dump()}"
         logger.error(msg)
