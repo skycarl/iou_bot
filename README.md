@@ -2,6 +2,15 @@
 
 Telegram bot frontend for IOU app
 
+## How to set up
+
+### Create Telegram bot
+
+1. In Telegram, open `@botfather`
+2. Create a new bot
+3. Get API key
+
+
 ## How to run
 
 ```bash
